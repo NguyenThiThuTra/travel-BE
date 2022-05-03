@@ -1,38 +1,35 @@
-const User = require('../models/userModel');
-const base = require('./baseController');
-const AppError = require('../utils/appError');
+const config = require('../configs/vnpay.config');
 
 exports.createVNPayment = async (req, res, next) => {
+  // const { config } = configVNPAY;
   try {
-    var ipAddr =
+    let ipAddr =
       req.headers['x-forwarded-for'] ||
       req.connection.remoteAddress ||
       req.socket.remoteAddress ||
       req.connection.socket.remoteAddress;
 
-    var config = require('config');
-    var dateFormat = require('dateformat');
+    let tmnCode = config.vnp_TmnCode;
+    let secretKey = config.vnp_HashSecret;
+    let vnpUrl = config.vnp_Url;
+    let returnUrl = config.returnUrl;
 
-    var tmnCode = config.get('vnp_TmnCode');
-    var secretKey = config.get('vnp_HashSecret');
-    var vnpUrl = config.get('vnp_Url');
-    var returnUrl = config.get('vnp_ReturnUrl');
+    let date = new Date();
 
-    var date = new Date();
+    let createDate = date.getTime();
+    let orderId = date.getTime();
 
-    var createDate = dateFormat(date, 'yyyymmddHHmmss');
-    var orderId = dateFormat(date, 'HHmmss');
-    var amount = req.body.amount;
-    var bankCode = req.body.bankCode;
+    let amount = req.body.amount;
+    let bankCode = req.body.bankCode;
 
-    var orderInfo = req.body.orderDescription;
-    var orderType = req.body.orderType;
-    var locale = req.body.language;
+    let orderInfo = req.body.orderDescription;
+    let orderType = req.body.orderType;
+    let locale = req.body.language;
     if (locale === null || locale === '') {
       locale = 'vn';
     }
-    var currCode = 'VND';
-    var vnp_Params = {};
+    let currCode = 'VND';
+    let vnp_Params = {};
     vnp_Params['vnp_Version'] = '2.1.0';
     vnp_Params['vnp_Command'] = 'pay';
     vnp_Params['vnp_TmnCode'] = tmnCode;
@@ -50,16 +47,14 @@ exports.createVNPayment = async (req, res, next) => {
       vnp_Params['vnp_BankCode'] = bankCode;
     }
 
-    vnp_Params = sortObject(vnp_Params);
-
-    var querystring = require('qs');
-    var signData = querystring.stringify(vnp_Params, { encode: false });
-    var crypto = require('crypto');
-    var hmac = crypto.createHmac('sha512', secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+    let querystring = require('qs');
+    let signData = querystring.stringify(vnp_Params, { encode: false });
+    let crypto = require('crypto');
+    let hmac = crypto.createHmac('sha512', secretKey);
+    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-
+    console.log({ vnpUrl });
     res.redirect(vnpUrl);
   } catch (error) {
     next(error);

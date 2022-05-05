@@ -1,4 +1,6 @@
 const config = require('../configs/vnpay.config');
+const querystring = require('qs');
+const crypto = require('crypto');
 
 exports.createVNPayment = async (req, res, next) => {
   // const { config } = configVNPAY;
@@ -13,9 +15,8 @@ exports.createVNPayment = async (req, res, next) => {
     let secretKey = config.vnp_HashSecret;
     let vnpUrl = config.vnp_Url;
     let returnUrl = config.returnUrl;
-
     let date = new Date();
-
+    console.log({ body: req.body });
     let createDate = date.getTime();
     let orderId = date.getTime();
 
@@ -39,7 +40,7 @@ exports.createVNPayment = async (req, res, next) => {
     vnp_Params['vnp_TxnRef'] = orderId;
     vnp_Params['vnp_OrderInfo'] = orderInfo;
     vnp_Params['vnp_OrderType'] = orderType;
-    vnp_Params['vnp_Amount'] = amount * 100;
+    vnp_Params['vnp_Amount'] = parseInt(amount, 10) * 100;
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
@@ -47,15 +48,18 @@ exports.createVNPayment = async (req, res, next) => {
       vnp_Params['vnp_BankCode'] = bankCode;
     }
 
-    let querystring = require('qs');
     let signData = querystring.stringify(vnp_Params, { encode: false });
-    let crypto = require('crypto');
+
     let hmac = crypto.createHmac('sha512', secretKey);
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
     console.log({ vnpUrl });
-    res.redirect(vnpUrl);
+    // res.redirect(vnpUrl);
+    res.status(200).json({
+      status: 'success',
+      vnpUrl,
+    });
   } catch (error) {
     next(error);
   }

@@ -1,27 +1,3 @@
-
-code: "
-"
-
-
------> 
-7 5 cate1  ->
-3 cate2 
- API :  {_idcate:1,quantity:5}   {_idcate:2 , quantity: 3}
- [1,2,3,4,5]   [1,2,3]  ->  updateMany()
-
- API :  {_idcate:1,quantity:5}   {_idcate:2 , quantity: 3}
-
- ->.nao  [idcate:1, idcate2]  
- ....for (idcate:1, idcate){
-
-      Array ROom =  find( {idcate1,time} ).limit(,quantity:5);
- Room.deleteMany([rooms.map(room=>room.id)])
- }
- mongoose  
-
-
-
-
 # Getting Started Front-end
 ### `npm install`
 Downloads a package and it's dependencies.\

@@ -67,6 +67,11 @@ app.use(xss());
 // Prevent parameter pollution
 app.use(hpp());
 
+// render static files
+app.get('/', function (req, res) {
+  var homePage = path.join(__dirname, 'home.html');
+  res.sendFile(homePage);
+});
 // Routes
 app.use('/api/v1/test', testRoutes);
 app.use('/api/v1/users', userRoutes);

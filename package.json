@@ -4,8 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "node server",
     "debug": "ndb server.js",
-    "start": "nodemon server.js"
+    "dev": "nodemon server.js"
   },
   "author": "Tra.ntt",
   "license": "ISC",

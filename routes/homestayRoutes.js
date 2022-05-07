@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const homestayController = require('../controllers/homestayController');
-const fileUploader = require('../configs/cloudinary.config');
+const fileUploader = require('../config/cloudinary.config');
 //end upload
 router.post(
   '/',

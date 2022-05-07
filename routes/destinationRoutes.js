@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const destinationController = require('../controllers/destinationController');
-const fileUploader = require('../configs/cloudinary.config');
+const fileUploader = require('../config/cloudinary.config');
 
 router.post(
   '/',

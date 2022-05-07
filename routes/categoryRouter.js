@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/categoryController');
-const fileUploader = require('../configs/cloudinary.config');
+const fileUploader = require('../config/cloudinary.config');
 
 router.route('/').get(categoryController.getAllCategory);
 router.patch(

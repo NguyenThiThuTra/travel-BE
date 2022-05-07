@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authController = require('./../controllers/authController');
-const fileUploader = require('../configs/cloudinary.config');
+const fileUploader = require('../config/cloudinary.config');
 
 router.post('/login', authController.login);
 router.post('/signup', fileUploader.single('avatar'), authController.signup);

@@ -75,3 +75,108 @@ exports.createVNPayment = async (req, res, next) => {
     vnpUrl,
   });
 };
+
+exports.returnVNPayment = async (req, res, next) => {
+  var vnp_Params = req.query;
+
+  var secureHash = vnp_Params['vnp_SecureHash'];
+
+  delete vnp_Params['vnp_SecureHash'];
+  delete vnp_Params['vnp_SecureHashType'];
+
+  vnp_Params = sortObject(vnp_Params);
+
+  var config = require('config');
+  var tmnCode = config.get('vnp_TmnCode');
+  var secretKey = config.get('vnp_HashSecret');
+
+  var querystring = require('qs');
+  var signData = querystring.stringify(vnp_Params, { encode: false });
+  var crypto = require('crypto');
+  var hmac = crypto.createHmac('sha512', secretKey);
+  var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+
+  if (secureHash === signed) {
+    //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+
+    res.status(200).json({
+      status: 'success',
+      code: vnp_Params['vnp_ResponseCode'],
+    });
+  } else {
+    res.status(200).json({
+      status: 'success',
+      code: '97',
+    });
+  }
+};
+
+exports.ipnVNPayment = async (req, res, next) => {
+  var vnp_Params = req.query;
+  console.log({req:req.query})
+  var secureHash = vnp_Params['vnp_SecureHash'];
+
+  delete vnp_Params['vnp_SecureHash'];
+  delete vnp_Params['vnp_SecureHashType'];
+
+  vnp_Params = sortObject(vnp_Params);
+  var config = require('config');
+  var secretKey = config.get('vnp_HashSecret');
+  var querystring = require('qs');
+  var signData = querystring.stringify(vnp_Params, { encode: false });
+  var crypto = require('crypto');
+  var hmac = crypto.createHmac('sha512', secretKey);
+  var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+
+  if (secureHash === signed) {
+    var orderId = vnp_Params['vnp_TxnRef'];
+    var rspCode = vnp_Params['vnp_ResponseCode'];
+    //Kiem tra du lieu co hop le khong, cap nhat trang thai don hang va gui ket qua cho VNPAY theo dinh dang duoi
+    res.status(200).json({
+      status: 'success',
+      RspCode: '00',
+      Message: 'success',
+    });
+  } else {
+    res.status(200).json({
+      status: 'success',
+      RspCode: '97',
+      Message: 'Fail checksum',
+    });
+  }
+};
+
+exports.callbackVNPayment = async (req, res, next) => {
+  // res.redirect(vnpUrl);
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.checkVNPayment = async (req, res, next) => {
+  // res.redirect(vnpUrl);
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.cancelVNPayment = async (req, res, next) => {
+  // res.redirect(vnpUrl);
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.refundVNPayment = async (req, res, next) => {
+  // res.redirect(vnpUrl);
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.queryVNPayment = async (req, res, next) => {
+  // res.redirect(vnpUrl);
+  res.status(200).json({
+    status: 'success',
+  });
+};

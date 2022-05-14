@@ -31,7 +31,8 @@ exports.createVNPayment = async (req, res, next) => {
   var date = new Date();
 
   var createDate = dateFormat(date, 'yyyymmddHHmmss');
-  var orderId = dateFormat(date, 'HHmmss');
+  // var orderId = dateFormat(date, 'HHmmss');
+  var orderId = req.body.orderId;
   var amount = req.body.amount;
   var bankCode = req.body.bankCode;
 
@@ -113,7 +114,7 @@ exports.returnVNPayment = async (req, res, next) => {
 
 exports.ipnVNPayment = async (req, res, next) => {
   var vnp_Params = req.query;
-  console.log({req:req.query})
+  console.log({ req: req.query });
   var secureHash = vnp_Params['vnp_SecureHash'];
 
   delete vnp_Params['vnp_SecureHash'];

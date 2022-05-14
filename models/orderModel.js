@@ -61,7 +61,7 @@ const orderSchema = new mongoose.Schema(
     },
     payment: {
       type: String,
-      enum: ['Giao dịch trực tiếp', 'Momo', 'Ngân hàng'],
+      enum: ['Giao dịch trực tiếp', 'Momo', 'Ngân hàng', 'vnpay'],
       default: 'Giao dịch trực tiếp',
     },
     status: {

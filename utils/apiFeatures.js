@@ -4,6 +4,20 @@ class APIFeatures {
     this.queryString = queryString;
   }
 
+  // search
+  search() {
+    const search = this.queryString.search;
+    if (search) {
+      this.query = this.query.find({
+        $text: {
+          $search: search,
+        },
+      });
+    }
+    return this;
+  }
+
+   // Field sort ex: -----/user?sort=-name
   sort() {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(',').join(' ');

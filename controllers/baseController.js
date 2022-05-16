@@ -127,7 +127,8 @@ exports.getAll = (Model) => async (req, res, next) => {
     )
       .sort()
       .paginate()
-      .limitFields();
+      .limitFields()
+      .search();
     const doc = await features.query;
 
     await Model.countDocuments(

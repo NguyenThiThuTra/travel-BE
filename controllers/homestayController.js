@@ -50,6 +50,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     }
 
     const features = new APIFeatures(Homestay.find(merge_query), req.query)
+      .search()
       .sort()
       .paginate()
       .limitFields();

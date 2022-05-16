@@ -78,5 +78,13 @@ const homestaySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+homestaySchema.index({
+  name: 'text',
+  // description: 'text',
+});
+
 const Homestay = mongoose.model('homestay', homestaySchema);
+Homestay.createIndexes({
+  name: 'text',
+});
 module.exports = Homestay;

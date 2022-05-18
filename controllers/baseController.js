@@ -34,14 +34,15 @@ exports.updateOne = (Model) => async (req, res, next) => {
     let gallery = undefined;
     if (avatarFile) {
       avatar = avatarFile?.path;
+      body.avatar = avatar;
     }
     // gallery upload
     if (galleryFiles) {
       gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
     }
     // end upload image
-    body.avatar = avatar;
-    body.images = gallery;
+
     const doc = await Model.findByIdAndUpdate(req.params.id, body, {
       new: true,
       runValidators: true,
@@ -75,14 +76,15 @@ exports.createOne = (Model) => async (req, res, next) => {
     let gallery = undefined;
     if (avatarFile) {
       avatar = avatarFile?.path;
+      body.avatar = avatar;
     }
     // gallery upload
     if (galleryFiles) {
       gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
     }
     // end upload image
-    body.avatar = avatar;
-    body.images = gallery;
+
     const doc = new Model(body);
     await doc.save();
 

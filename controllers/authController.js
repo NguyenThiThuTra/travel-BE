@@ -77,9 +77,9 @@ exports.signup = async (req, res, next) => {
     let avatar = undefined;
     if (avatarFile) {
       avatar = avatarFile?.path;
+      formData.avatar = avatar;
     }
     // end upload image
-    formData.avatar = avatar;
 
     const user = new User(formData);
     await user.save();

@@ -62,14 +62,14 @@ exports.createRoom = async (req, res, next) => {
     let gallery = undefined;
     if (avatarFile) {
       avatar = avatarFile?.path;
+      categoryData.avatar = avatar;
     }
     // gallery upload
     if (galleryFiles) {
       gallery = galleryFiles.map((file) => file.path);
+      categoryData.images = gallery;
     }
     // end upload image
-    categoryData.avatar = avatar;
-    categoryData.images = gallery;
 
     const category = new Category(categoryData);
     await category.save();

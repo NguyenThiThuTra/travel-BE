@@ -84,14 +84,14 @@ exports.addHomestayAndUpdateDestination = async (req, res) => {
     let gallery = undefined;
     if (avatarFile) {
       avatar = avatarFile?.path;
+      body.avatar = avatar;
     }
     // gallery upload
     if (galleryFiles) {
       gallery = galleryFiles.map((file) => file.path);
+      homestay_info.images = gallery;
     }
     // end upload image
-    body.avatar = avatar;
-    homestay_info.images = gallery;
 
     const homestay = new Homestay(homestay_info);
     await homestay.save(async function (err, homestay) {

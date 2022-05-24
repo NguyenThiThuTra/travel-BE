@@ -4,6 +4,8 @@ const Order = require('../models/orderModel');
 const orderController = require('../controllers/orderController');
 const baseController = require('../controllers/baseController');
 
+router.get('/destinations/:user_id', orderController.getDestinationOrderByUser);
+
 router.post('/', orderController.createOrder);
 
 router.route('/').get(orderController.getAllOrders);

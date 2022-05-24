@@ -1,10 +1,12 @@
 const Order = require('../models/orderModel');
 const APIFeatures = require('../utils/apiFeatures');
 const Room = require('../models/roomModel');
+const Homestay = require('../models/homestayModel');
 const base = require('./baseController');
 const moment = require('moment');
 const AppError = require('../utils/appError');
 const querystring = require('querystring');
+const mongoose = require('mongoose');
 
 exports.getAllOrders = async (req, res, next) => {
   try {
@@ -47,9 +49,10 @@ exports.getAllOrders = async (req, res, next) => {
 };
 exports.getOrder = async (req, res, next) => {
   try {
-    const doc = await Order.findById(req.params.id).populate('room_ids')
-    .populate('order.category_id')
-    .populate('homestay_id');
+    const doc = await Order.findById(req.params.id)
+      .populate('room_ids')
+      .populate('order.category_id')
+      .populate('homestay_id');
 
     if (!doc) {
       return next(
@@ -177,3 +180,34 @@ exports.updateOrder = async (req, res, next) => {
   }
 };
 exports.deleteOrder = base.deleteOne(Order);
+
+exports.getDestinationOrderByUser = async function (req, res, next) {
+  try {
+    const user_id = req.params.user_id;
+    const order = await Order.find({ user_id })
+      .distinct('homestay_id')
+      .populate('homestay_id');
+
+    if (!order) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    const homestay = await Homestay.find({
+      _id: {
+        $in: order,
+      },
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: homestay,
+      order
+    });
+  } catch (error) {
+    next(error);
+  }
+};

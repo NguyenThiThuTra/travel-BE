@@ -84,7 +84,6 @@ exports.createOne = (Model) => async (req, res, next) => {
       body.images = gallery;
     }
     // end upload image
-
     const doc = new Model(body);
     await doc.save();
 

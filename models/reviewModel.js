@@ -20,16 +20,10 @@ const reviewSchema = new mongoose.Schema(
       default: [],
     },
     schedule: {
-      type: [
-        {
-          type: String,
-          required: false,
-        },
-      ],
+      type: mongoose.Schema.Types.Mixed,
       required: false,
-      default: [],
+      default: null,
     },
-
     active: {
       type: Boolean,
       default: true,

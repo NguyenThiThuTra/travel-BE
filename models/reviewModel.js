@@ -5,7 +5,7 @@ const reviewSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
-      required: false,
+      required: true,
     },
     province: {
       type: Number,

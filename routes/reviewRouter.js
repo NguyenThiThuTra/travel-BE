@@ -13,6 +13,11 @@ router.post(
 );
 
 router.route('/').get(reviewController.getAllReview);
+
+router.route('/destination').get(reviewController.getAllReviewDestination);
+
+router.post('/like', reviewController.likeReview);
+
 router.patch(
   '/:id',
   fileUploader.fields([
@@ -24,7 +29,7 @@ router.patch(
 router
   .route('/:id')
   .get(reviewController.getReview)
-//   .patch(reviewController.updateReview)
+  //   .patch(reviewController.updateReview)
   .delete(reviewController.deleteReview);
 
 module.exports = router;

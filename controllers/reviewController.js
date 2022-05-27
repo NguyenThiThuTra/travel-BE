@@ -1,8 +1,10 @@
 const Comment = require('../models/commentModel');
 const Review = require('../models/reviewModel');
+const LikeReview = require('../models/likeReviewModel');
 const Homestay = require('../models/homestayModel');
 const APIFeatures = require('../utils/apiFeatures');
 const base = require('./baseController');
+const querystring = require('querystring');
 
 exports.postReview = base.createOne(Review);
 exports.getAllReview = async (req, res, next) => {
@@ -44,6 +46,19 @@ exports.getAllReview = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllReviewDestination = async (req, res, next) => {
+  try {
+    const reviews = await Review.find().distinct('province');
+    console.log({ reviews });
+    res.status(200).json({
+      status: 'success',
+      data: reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.getReview = async (req, res, next) => {
   try {
     const doc = await Review.findById(req.params.id).populate('user_id');
@@ -68,3 +83,67 @@ exports.getReview = async (req, res, next) => {
 
 exports.updateReview = base.updateOne(Review);
 exports.deleteReview = base.deleteOne(Review);
+
+exports.likeReview = async (req, res, next) => {
+  const { user_id, review_id } = req.body;
+  try {
+    // find review by review_id
+    const doc = await Review.findById(review_id);
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    // update increment likeReview
+    // const a = await Review.findByIdAndUpdate(
+    //   review_id,
+    //   { $inc: { likeReview: 1 } },
+    //   { new: true }
+    // );
+
+    // find like review by user_id and review_id
+    const likeReview = await LikeReview.findOne({
+      user_id,
+      review_id,
+      active: true,
+    });
+    console.log({ likeReview });
+    if (likeReview) {
+      // delete like review by user_id and review_id
+      await LikeReview.findOneAndUpdate(
+        {
+          user_id,
+          review_id,
+        },
+        {
+          active: false,
+        }
+      );
+      // update decrement likeReview
+      await Review.findByIdAndUpdate(
+        review_id,
+        { $inc: { likeReview: -1 } },
+        { new: true }
+      );
+    } else {
+      const like = new LikeReview({ user_id, review_id });
+      await like.save();
+      // update increment likeReview
+      await Review.findByIdAndUpdate(
+        review_id,
+        { $inc: { likeReview: 1 } },
+        { new: true }
+      );
+    }
+
+    res.status(200).json({
+      status: 'success',
+      code: 200,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

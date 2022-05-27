@@ -24,6 +24,11 @@ const reviewSchema = new mongoose.Schema(
       required: false,
       default: null,
     },
+    likeReview: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
     active: {
       type: Boolean,
       default: true,

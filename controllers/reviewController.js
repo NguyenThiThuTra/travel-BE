@@ -105,44 +105,44 @@ exports.likeReview = async (req, res, next) => {
     // );
 
     // find like review by user_id and review_id
-    const likeReview = await LikeReview.findOne({
-      user_id,
-      review_id,
-      active: true,
-    });
-    console.log({ likeReview });
-    if (likeReview) {
-      // delete like review by user_id and review_id
-      await LikeReview.findOneAndUpdate(
-        {
-          user_id,
-          review_id,
-        },
-        {
+    const likeReview = await LikeReview.findOneAndUpdate(
+      {
+        user_id,
+        review_id,
+        active: true,
+      },
+      {
+        $set: {
           active: false,
-        }
-      );
-      // update decrement likeReview
+        },
+      }
+    );
+
+    if (likeReview) {
       await Review.findByIdAndUpdate(
         review_id,
         { $inc: { likeReview: -1 } },
         { new: true }
       );
+      res.status(200).json({
+        status: 'success',
+        code: 200,
+      });
     } else {
-      const like = new LikeReview({ user_id, review_id });
-      await like.save();
       // update increment likeReview
       await Review.findByIdAndUpdate(
         review_id,
         { $inc: { likeReview: 1 } },
         { new: true }
       );
+      const like = new LikeReview({ user_id, review_id });
+      await like.save();
+      res.status(200).json({
+        status: 'success',
+        code: 200,
+      });
     }
-
-    res.status(200).json({
-      status: 'success',
-      code: 200,
-    });
+    // create like review
   } catch (error) {
     next(error);
   }

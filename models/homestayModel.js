@@ -50,7 +50,6 @@ const homestaySchema = new mongoose.Schema(
         },
       },
     },
-
     images: {
       type: Array,
       default: [],

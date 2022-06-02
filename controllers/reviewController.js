@@ -50,7 +50,6 @@ exports.getAllReview = async (req, res, next) => {
 exports.getAllReviewDestination = async (req, res, next) => {
   try {
     const reviews = await Review.find().distinct('province');
-    console.log({ reviews });
     res.status(200).json({
       status: 'success',
       data: reviews,

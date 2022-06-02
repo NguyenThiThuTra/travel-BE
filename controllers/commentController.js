@@ -40,13 +40,30 @@ exports.getComment = base.getOne(Comment);
 exports.addCommentInHomestay = async (req, res, next) => {
   try {
     const body = req.body;
-    const { user_id, text, homestay_id } = body;
-    const comment = new Comment({
+    const { user_id, text, rate, homestay_id } = body;
+    const galleryFiles = req?.files?.images;
+    let gallery = undefined;
+    // gallery upload
+    if (galleryFiles) {
+      gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
+    }
+    // end upload image
+    const payload = {
       user_id,
       text,
+      rate,
       homestay_id,
-    });
+    };
+    if (gallery) {
+      payload.images = gallery;
+    }
+    const comment = new Comment(payload);
     await comment.save();
+    res.status(201).json({
+      status: 'success',
+      data: comment,
+    });
   } catch (error) {
     next(error);
   }

@@ -12,6 +12,10 @@ const commentSchema = new mongoose.Schema(
       ref: 'homestay',
       required: true,
     },
+    images: {
+      type: Array,
+      default: [],
+    },
     text: {
       type: String,
       required: true,

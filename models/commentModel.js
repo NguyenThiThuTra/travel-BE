@@ -12,6 +12,11 @@ const commentSchema = new mongoose.Schema(
       ref: 'homestay',
       required: true,
     },
+    order_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'order',
+      required: true,
+    },
     images: {
       type: Array,
       default: [],

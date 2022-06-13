@@ -8,7 +8,7 @@ exports.getAllCommentInHomestay = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const features = new APIFeatures(
-      Comment.find({ homestay_id }).populate('user_id'),
+      Comment.find({ homestay_id }).populate('user_id').populate('order_id'),
       req.query
     )
       .sort()
@@ -36,11 +36,12 @@ exports.getAllCommentInHomestay = async (req, res, next) => {
     next(error);
   }
 };
+exports.getAll = base.getAll(Comment);
 exports.getComment = base.getOne(Comment);
 exports.addCommentInHomestay = async (req, res, next) => {
   try {
     const body = req.body;
-    const { user_id, text, rate, homestay_id } = body;
+    const { user_id, text, rate, homestay_id, order_id } = body;
     const galleryFiles = req?.files?.images;
     let gallery = undefined;
     // gallery upload
@@ -54,6 +55,7 @@ exports.addCommentInHomestay = async (req, res, next) => {
       text,
       rate,
       homestay_id,
+      order_id,
     };
     if (gallery) {
       payload.images = gallery;

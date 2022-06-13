@@ -114,7 +114,7 @@ exports.returnVNPayment = async (req, res, next) => {
 
 exports.ipnVNPayment = async (req, res, next) => {
   var vnp_Params = req.query;
-  console.log({ req: req.query });
+  // console.log({ req: req.query });
   var secureHash = vnp_Params['vnp_SecureHash'];
 
   delete vnp_Params['vnp_SecureHash'];

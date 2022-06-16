@@ -19,6 +19,7 @@ const destinationRoutes = require('./routes/destinationRoutes');
 const categoryRoutes = require('./routes/categoryRouter');
 const reviewRoutes = require('./routes/reviewRouter');
 const commentRoutes = require('./routes/commentRouter');
+const likeReviewRoutes = require('./routes/likeReviewRouter');
 const favouriteRoutes = require('./routes/favouriteRoutes');
 const testRoutes = require('./test/test.router');
 
@@ -86,6 +87,8 @@ app.use('/api/v1/category', categoryRoutes);
 app.use('/api/v1/comments', commentRoutes);
 app.use('/api/v1/payment', paymentRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/likeReview', likeReviewRoutes);
+
 //end Routers
 
 // handle undefined Routes

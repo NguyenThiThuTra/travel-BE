@@ -118,7 +118,7 @@ exports.likeReview = async (req, res, next) => {
     );
 
     if (likeReview) {
-      await Review.findByIdAndUpdate(
+      const dataUpdate = await Review.findByIdAndUpdate(
         review_id,
         { $inc: { likeReview: -1 } },
         { new: true }
@@ -126,10 +126,11 @@ exports.likeReview = async (req, res, next) => {
       res.status(200).json({
         status: 'success',
         code: 200,
+        data: dataUpdate,
       });
     } else {
       // update increment likeReview
-      await Review.findByIdAndUpdate(
+      const dataUpdate = await Review.findByIdAndUpdate(
         review_id,
         { $inc: { likeReview: 1 } },
         { new: true }
@@ -139,6 +140,7 @@ exports.likeReview = async (req, res, next) => {
       res.status(200).json({
         status: 'success',
         code: 200,
+        data: dataUpdate,
       });
     }
     // create like review

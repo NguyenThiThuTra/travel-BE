@@ -141,6 +141,36 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+exports.getCurrentUser = async (req, res, next) => {
+  try {
+    // 1) check if the token is there
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+      return next();
+    }
+
+    // 2) Verify token
+    const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+    // 3) check if the user is exist (not deleted)
+    const user = await User.findById(decode.id);
+    if (!user) {
+      next();
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    next();
+  }
+};
+
 // Authorization check if the user have rights to do this action
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {

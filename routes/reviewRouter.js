@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reviewController = require('../controllers/reviewController');
+const authController = require('./../controllers/authController');
 const fileUploader = require('../config/cloudinary.config');
 
 router.post(
@@ -12,7 +13,7 @@ router.post(
   reviewController.postReview
 );
 
-router.route('/').get(reviewController.getAllReview);
+router.get('/', authController.getCurrentUser, reviewController.getAllReview);
 
 router.route('/destination').get(reviewController.getAllReviewDestination);
 

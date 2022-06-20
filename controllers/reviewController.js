@@ -1,6 +1,7 @@
 const Comment = require('../models/commentModel');
 const Review = require('../models/reviewModel');
 const LikeReview = require('../models/likeReviewModel');
+const Order = require('../models/orderModel');
 const Homestay = require('../models/homestayModel');
 const APIFeatures = require('../utils/apiFeatures');
 const base = require('./baseController');
@@ -23,9 +24,35 @@ exports.getAllReview = async (req, res, next) => {
       .limitFields()
       .search();
     const doc = await features.query;
+    let dataReview = doc;
+    // asyncOrderByUserIdReview
+    const asyncOrderByUserIdReview = async (review) => {
+      const homestayIds = await Order.find({
+        user_id: review.user_id,
+        status: 'approved',
+      }).distinct('homestay_id');
+      const homestays = await Homestay.find({ _id: { $in: homestayIds } });
+      return { [review?._id]: homestays };
+    };
+    const orderByUserIdReview = await Promise.all(
+      doc.map((value) => asyncOrderByUserIdReview(value))
+    );
+    dataReview = doc.map((item) => {
+      const homestays = orderByUserIdReview.find((l) => {
+        if (Object.keys(l)?.[0] == item?._id.toString()) {
+          return l;
+        }
+        return false;
+      });
+
+      return {
+        ...item?._doc,
+        homestays: Object.values(homestays)?.[0],
+      };
+    });
+    // asyncReview
     const currentUser = req?.user;
     let dataLike = [];
-    let dataReview = doc;
 
     if (currentUser) {
       const asyncReview = async (review) => {
@@ -44,8 +71,9 @@ exports.getAllReview = async (req, res, next) => {
         }
         dataLike.push({ [review?._id]: isCurrentUserLike });
       };
-      await Promise.all(doc.map((value) => asyncReview(value)));
-      dataReview = doc.map((item) => {
+      await Promise.all(dataReview.map((value) => asyncReview(value)));
+
+      dataReview = dataReview.map((item) => {
         const isCheckLike = dataLike.find((l) => {
           if (Object.keys(l)?.[0] == item?._id.toString()) {
             return l;
@@ -54,7 +82,7 @@ exports.getAllReview = async (req, res, next) => {
         });
 
         return {
-          ...item?._doc,
+          ...item,
           isCurrentUserLike: Object.values(isCheckLike)?.[0],
         };
       });

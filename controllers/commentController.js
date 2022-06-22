@@ -62,9 +62,19 @@ exports.addCommentInHomestay = async (req, res, next) => {
     }
     const comment = new Comment(payload);
     await comment.save();
+    const homestay = await Homestay.findOne({ _id: homestay_id });
+    const { rate: rateHomestay, comments_count } = homestay;
+    const average =
+      (parseInt(rate) + rateHomestay * comments_count) / (comments_count + 1);
+    const dataUpdate = await Homestay.findByIdAndUpdate(
+      homestay_id,
+      { rate: average, $inc: { comments_count: 1 } },
+      { new: true }
+    );
     res.status(201).json({
       status: 'success',
       data: comment,
+      dataHomestayUpdate: dataUpdate,
     });
   } catch (error) {
     next(error);

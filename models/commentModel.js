@@ -12,6 +12,10 @@ const commentSchema = new mongoose.Schema(
       ref: 'homestay',
       required: true,
     },
+    rate: {
+      type: Number,
+      default: 0,
+    },
     order_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'order',

@@ -69,6 +69,10 @@ const orderSchema = new mongoose.Schema(
       enum: ['pending', 'approved', 'rejected', 'canceled', 'holding'],
       default: 'pending',
     },
+    paid: {
+      type: Boolean,
+      default: false,
+    },
     // assets: {
     //   macLab: { type: Boolean, default: false },
     //   pcLab: { type: Boolean, default: false },

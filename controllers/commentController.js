@@ -16,7 +16,7 @@ exports.getAllCommentInHomestay = async (req, res, next) => {
       .limitFields();
     const doc = await features.query;
 
-    await Comment.countDocuments({}).then((total) => {
+    await Comment.countDocuments({ homestay_id }).then((total) => {
       res.status(200).json({
         status: 'success',
         results: doc.length,

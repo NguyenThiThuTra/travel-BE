@@ -8,6 +8,8 @@ const APIFeatures = require('../utils/apiFeatures');
 exports.getAllHomestay = base.getAll(Homestay);
 exports.getAllHomestaySearch = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     let query_filters = querystring.parse(req.query?.filters) || {};
     let merge_query = Object.assign({}, query_filters);
 
@@ -55,6 +57,23 @@ exports.getAllHomestaySearch = async (req, res, next) => {
       .paginate()
       .limitFields();
     const availableRooms = await features.query;
+
+    await Homestay.countDocuments(merge_query).then((total) => {
+      res.status(200).json({
+        status: 'success',
+        results: availableRooms.length,
+        data: availableRooms,
+        paging: {
+          current_page: page,
+          total: total,
+          per_page: limit,
+          last_page: Math.ceil(total / limit),
+          from: (page - 1) * limit + 1,
+          to: (page - 1) * limit + 1 + limit,
+          offset: (page - 1) * limit,
+        },
+      });
+    });
 
     res.status(200).json({
       status: 'success',

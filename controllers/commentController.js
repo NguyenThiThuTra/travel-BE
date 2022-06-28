@@ -1,6 +1,7 @@
 const Comment = require('../models/commentModel');
 const Homestay = require('../models/homestayModel');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 const base = require('./baseController');
 exports.getAllCommentInHomestay = async (req, res, next) => {
   try {
@@ -60,6 +61,17 @@ exports.addCommentInHomestay = async (req, res, next) => {
     if (gallery) {
       payload.images = gallery;
     }
+
+    const commentByOrderId = await Comment.findOne({ order_id });
+    if (commentByOrderId) {
+      return next(
+        new AppError(400, 'fail', 'Bạn đã bình luận về phòng này rồi '),
+        req,
+        res,
+        next
+      );
+    }
+
     const comment = new Comment(payload);
     await comment.save();
     const homestay = await Homestay.findOne({ _id: homestay_id });

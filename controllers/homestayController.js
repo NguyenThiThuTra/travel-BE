@@ -4,6 +4,7 @@ const Order = require('../models/orderModel');
 const Room = require('../models/roomModel');
 const querystring = require('querystring');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 
 exports.getAllHomestay = base.getAll(Homestay);
 exports.getAllHomestaySearch = async (req, res, next) => {
@@ -15,7 +16,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
 
     const { from_date, to_date, province_code } = req.query;
     if (from_date && to_date) {
-      console.log({ from_date, to_date });
+      // console.log({ from_date, to_date });
       const orders = await Order.find({
         $or: [
           { start: { $gte: from_date, $lte: to_date } },
@@ -86,6 +87,48 @@ exports.getAllHomestaySearch = async (req, res, next) => {
 };
 
 exports.getHomestay = base.getOne(Homestay);
-exports.createHomestay = base.createOne(Homestay);
+exports.createHomestay = async (req, res, next) => {
+  try {
+    let body = req.body;
+    // upload file
+    // image upload
+    const avatarFile = req?.files?.avatar?.[0];
+    const galleryFiles = req?.files?.images;
+    let avatar = undefined;
+    let gallery = undefined;
+    if (avatarFile) {
+      avatar = avatarFile?.path;
+      body.avatar = avatar;
+    }
+    // gallery upload
+    if (galleryFiles) {
+      gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
+    }
+    // end upload image
+
+    const { user_id } = body;
+    const homestayByUserId = await Homestay.findOne({ user_id });
+
+    if (homestayByUserId) {
+      return next(
+        new AppError(400, 'fail', 'Bạn đã tạo homestay rồi'),
+        req,
+        res,
+        next
+      );
+    }
+
+    const doc = new Homestay(body);
+    await doc.save();
+
+    res.status(201).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.updateHomestay = base.updateOne(Homestay);
 exports.deleteHomestay = base.deleteOne(Homestay);

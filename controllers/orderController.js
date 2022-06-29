@@ -184,7 +184,11 @@ exports.deleteOrder = base.deleteOne(Order);
 exports.getDestinationOrderByUser = async function (req, res, next) {
   try {
     const user_id = req.params.user_id;
-    const order = await Order.find({ user_id })
+    const order = await Order.find({
+      user_id,
+      status: 'approved',
+      start: { $lte: new Date() },
+    })
       .distinct('homestay_id')
       .populate('homestay_id');
 
@@ -205,7 +209,7 @@ exports.getDestinationOrderByUser = async function (req, res, next) {
     res.status(200).json({
       status: 'success',
       data: homestay,
-      order
+      order,
     });
   } catch (error) {
     next(error);

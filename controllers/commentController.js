@@ -9,7 +9,15 @@ exports.getAllCommentInHomestay = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const features = new APIFeatures(
-      Comment.find({ homestay_id }).populate('user_id').populate('order_id'),
+      Comment.find({ homestay_id })
+        .populate('user_id')
+        .populate('order_id')
+        .populate({
+          path: 'order_id',
+          populate: {
+            path: 'order.category_id',
+          },
+        }),
       req.query
     )
       .sort()

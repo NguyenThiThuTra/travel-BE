@@ -11,7 +11,9 @@ exports.getAllHomestaySearch = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    let query_filters = querystring.parse(req.query?.filters) || {};
+
+    let { active, ...query_filters } =
+      querystring.parse(req.query?.filters) || {};
     let merge_query = Object.assign({}, query_filters);
 
     const { from_date, to_date, province_code } = req.query;
@@ -52,14 +54,18 @@ exports.getAllHomestaySearch = async (req, res, next) => {
       };
     }
 
-    const features = new APIFeatures(Homestay.find(merge_query), req.query)
+    const filtersHomestay = { ...merge_query };
+    if (typeof active !== 'undefined') {
+      filtersHomestay.active = active;
+    }
+    const features = new APIFeatures(Homestay.find(filtersHomestay), req.query)
       .search()
       .sort()
       .paginate()
       .limitFields();
     const availableRooms = await features.query;
 
-    await Homestay.countDocuments(merge_query).then((total) => {
+    await Homestay.countDocuments(filtersHomestay).then((total) => {
       res.status(200).json({
         status: 'success',
         results: availableRooms.length,
@@ -130,5 +136,72 @@ exports.createHomestay = async (req, res, next) => {
     next(error);
   }
 };
-exports.updateHomestay = base.updateOne(Homestay);
+exports.updateHomestay = async (req, res, next) => {
+  try {
+    let { active, ...body } = req.body;
+    // upload file
+    // image upload
+    const avatarFile = req?.files?.avatar?.[0];
+    const galleryFiles = req?.files?.images;
+    let avatar = undefined;
+    let gallery = undefined;
+    if (avatarFile) {
+      avatar = avatarFile?.path;
+      body.avatar = avatar;
+    }
+    // gallery upload
+    if (galleryFiles) {
+      gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
+    }
+    // end upload image
+    const doc = await Homestay.findByIdAndUpdate(req.params.id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    res.status(200).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.handleActiveHomestay = async (req, res, next) => {
+  try {
+    let { active } = req.body;
+    const currentUser = req?.user;
+    const filters = { _id: req.params.id };
+
+    if (currentUser?.roles === 'user') {
+      filters.user_id = currentUser?.id;
+    }
+
+    const doc = await Homestay.findOneAndUpdate(filters, { active });
+
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    res.status(200).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.deleteHomestay = base.deleteOne(Homestay);

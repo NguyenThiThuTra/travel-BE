@@ -103,7 +103,6 @@ exports.getAllRooms = async (req, res, next) => {
   try {
     let query_filters = querystring.parse(req.query?.filters) || {};
     let merge_query = Object.assign({}, query_filters);
-
     const { from_date, to_date } = req.query;
     if (from_date && to_date) {
       const orders = await Order.find({
@@ -122,10 +121,41 @@ exports.getAllRooms = async (req, res, next) => {
       const roomIds = orders.map((b) => b.room_ids).flat();
       merge_query = {
         ...merge_query,
+        // 'category_id.active': false,
         _id: { $nin: roomIds },
       };
     }
 
+    // const { activeCategory } = req.query;
+    // console.log({ activeCategory });
+    // let features = null;
+    // if (!activeCategory) {
+    //   features = new APIFeatures(
+    //     Room.find(merge_query).populate('homestay_id').populate('category_id'),
+    //     req.query
+    //   )
+    //     .sort()
+    //     .paginate()
+    //     .limitFields();
+    // }
+    // if (activeCategory) {
+    //   features = new APIFeatures(
+    //     Room.find(merge_query)
+    //       .populate('homestay_id')
+    //       // .where('category_id.active')
+    //       // .equals(false)
+    //       .populate({
+    //         path: 'category_id',
+    //         match: {
+    //           active: true,
+    //         },
+    //       }),
+    //     req.query
+    //   )
+    //     .sort()
+    //     .paginate()
+    //     .limitFields();
+    // }
     const features = new APIFeatures(
       Room.find(merge_query).populate('homestay_id').populate('category_id'),
       req.query
@@ -134,6 +164,7 @@ exports.getAllRooms = async (req, res, next) => {
       .paginate()
       .limitFields();
     const availableRooms = await features.query;
+    console.log({ availableRooms });
     res.status(200).json({
       status: 'success',
       results: availableRooms.length,

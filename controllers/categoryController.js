@@ -53,3 +53,39 @@ exports.getAllCategoryInHomestay = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.handleActiveCategory = async (req, res, next) => {
+  try {
+    let { active } = req.body;
+    console.log({ active });
+    const currentUser = req?.user;
+    const filters = { _id: req.params.id };
+
+    if (currentUser?.roles === 'user') {
+      filters.user_id = currentUser?.id;
+    }
+
+    const doc = await Category.findOneAndUpdate(filters, { active });
+
+    await Room.updateMany(
+      { category_id: req.params.id },
+      { $set: { status: active } },
+      { multi: true }
+    );
+    
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    res.status(200).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

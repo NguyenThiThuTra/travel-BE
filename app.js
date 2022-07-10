@@ -18,7 +18,6 @@ const categoryRoutes = require('./routes/categoryRouter');
 const reviewRoutes = require('./routes/reviewRouter');
 const commentRoutes = require('./routes/commentRouter');
 const likeReviewRoutes = require('./routes/likeReviewRouter');
-const favouriteRoutes = require('./routes/favouriteRoutes');
 const testRoutes = require('./test/test.router');
 
 const globalErrHandler = require('./controllers/errorController');
@@ -78,7 +77,6 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/homestays', homestayRoutes);
 app.use('/api/v1/rooms', roomRoutes);
 app.use('/api/v1/orders', orderRoutes);
-app.use('/api/v1/favourites', favouriteRoutes);
 app.use('/api/v1/category', categoryRoutes);
 app.use('/api/v1/comments', commentRoutes);
 app.use('/api/v1/payment', paymentRoutes);

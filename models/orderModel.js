@@ -27,6 +27,14 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    total_payment: {
+      type: Number,
+      require: true,
+    },
+    total_rooms: {
+      type: Number,
+      require: true,
+    },
     start: { type: Date, required: true },
     end: { type: Date, required: true },
     homestay_name: {
@@ -53,8 +61,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please fill your phone'],
     },
-    // total_price_orders: { type: Number, require: true },
-    // total_selected_rooms: { type: Number, require: true },
     note: {
       type: String,
       required: false,

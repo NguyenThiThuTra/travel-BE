@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/categoryController');
 const fileUploader = require('../config/cloudinary.config');
+const authController = require('./../controllers/authController');
 
 router.route('/').get(categoryController.getAllCategory);
 router.patch(
@@ -11,6 +12,12 @@ router.patch(
     { name: 'images', maxCount: 8 },
   ]),
   categoryController.updateCategory
+);
+router.patch(
+  '/:id/active',
+  authController.protect,
+  authController.getCurrentUser,
+  categoryController.handleActiveCategory
 );
 router
   .route('/:id')

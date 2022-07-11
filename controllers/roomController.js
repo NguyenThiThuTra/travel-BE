@@ -119,6 +119,33 @@ exports.updateRoom = async (req, res, next) => {
       runValidators: true,
     });
 
+    if (body?.category_id) {
+      const doc = await Room.find({
+        category_id: body?.category_id,
+        status: true,
+      }).limit(2);
+      if (doc?.length === 1) {
+        await Category.findByIdAndUpdate(
+          body?.category_id,
+          { active: true },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+      }
+      if (!doc.length) {
+        await Category.findByIdAndUpdate(
+          body?.category_id,
+          { active: false },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+      }
+    }
+
     if (!doc) {
       return next(
         new AppError(404, 'fail', 'No document found with that id'),
@@ -135,7 +162,6 @@ exports.updateRoom = async (req, res, next) => {
     next(error);
   }
 };
-exports.deleteRoom = base.deleteOne(Room);
 
 exports.getAllRooms = async (req, res, next) => {
   try {
@@ -188,3 +214,5 @@ exports.getAllRooms = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteRoom = base.deleteOne(Room);

@@ -36,7 +36,6 @@ exports.createRoom = async (req, res, next) => {
     const body = req.body;
     const { homestay_id, name, description, type, quantity, price, user_id } =
       body;
-    const discount = body?.discount || 0;
     const rate = body?.rate || 0;
     const view = body?.view || 0;
     const comments_count = body?.comments_count || 0;
@@ -47,7 +46,6 @@ exports.createRoom = async (req, res, next) => {
       quantity,
       price,
       description,
-      discount,
       rate,
       view,
       comments_count,
@@ -96,7 +94,47 @@ exports.createRoom = async (req, res, next) => {
     next(error);
   }
 };
-exports.updateRoom = base.updateOne(Room);
+exports.updateRoom = async (req, res, next) => {
+  try {
+    let body = req.body;
+    // upload file
+    // image upload
+    const avatarFile = req?.files?.avatar?.[0];
+    const galleryFiles = req?.files?.images;
+    let avatar = undefined;
+    let gallery = undefined;
+    if (avatarFile) {
+      avatar = avatarFile?.path;
+      body.avatar = avatar;
+    }
+    // gallery upload
+    if (galleryFiles) {
+      gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
+    }
+    // end upload image
+
+    const doc = await Room.findByIdAndUpdate(req.params.id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+    res.status(200).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.deleteRoom = base.deleteOne(Room);
 
 exports.getAllRooms = async (req, res, next) => {

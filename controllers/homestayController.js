@@ -39,9 +39,16 @@ exports.getAllHomestaySearch = async (req, res, next) => {
         _id: { $nin: roomIds },
       };
 
-      const availableRoom = await Room.find(merge_query).distinct(
-        'homestay_id'
-      );
+      const { activeCategory } = req.query;
+      let queryRooms = { ...merge_query };
+      if (activeCategory !== undefined) {
+        queryRooms = {
+          ...queryRooms,
+          status: activeCategory,
+        };
+      }
+
+      const availableRoom = await Room.find(queryRooms).distinct('homestay_id');
       merge_query = {
         ...merge_query,
         _id: { $in: availableRoom },
@@ -58,6 +65,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     if (typeof active !== 'undefined') {
       filtersHomestay.active = active;
     }
+
     const features = new APIFeatures(Homestay.find(filtersHomestay), req.query)
       .search()
       .sort()

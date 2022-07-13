@@ -6,7 +6,45 @@ const querystring = require('querystring');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 
-exports.getAllHomestay = base.getAll(Homestay);
+exports.getAllHomestay = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const features = new APIFeatures(
+      Homestay.find(
+        req.query.filters ? querystring.parse(req.query.filters) : {}
+      ).populate('user_id'),
+      req.query
+    )
+      .sort()
+      .paginate()
+      .limitFields()
+      .search();
+    const doc = await features.query;
+
+    await Homestay.countDocuments(
+      req.query.filters ? querystring.parse(req.query.filters) : {}
+    ).then((total) => {
+      res.status(200).json({
+        status: 'success',
+        results: doc.length,
+        data: doc,
+        paging: {
+          current_page: page,
+          total: total,
+          per_page: limit,
+          last_page: Math.ceil(total / limit),
+          from: (page - 1) * limit + 1,
+          to: (page - 1) * limit + 1 + limit,
+          offset: (page - 1) * limit,
+        },
+      });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.getAllHomestaySearch = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;

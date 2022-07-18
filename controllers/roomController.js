@@ -71,6 +71,28 @@ exports.createRoom = async (req, res, next) => {
 
     const category = new Category(categoryData);
     await category.save();
+
+    const categoryMinPrice = await Category.find({
+      homestay_id: homestay_id,
+    })
+      .limit(1)
+      .sort('-price');
+    const categoryMaxPrice = await Category.find({
+      homestay_id: homestay_id,
+    })
+      .limit(1)
+      .sort('-price');
+    if (categoryMinPrice?.length > 0 && categoryMaxPrice?.length > 0) {
+      await Homestay.findByIdAndUpdate(
+        homestay_id,
+        { minPrice: categoryMinPrice, maxPrice: categoryMaxPrice },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    }
+
     const roomData = {
       homestay_id,
       category_id: category._id,

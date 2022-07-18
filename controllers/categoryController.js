@@ -1,6 +1,7 @@
 const Category = require('../models/categoryModel');
 const Room = require('../models/roomModel');
 const Order = require('../models/orderModel');
+const Homestay = require('../models/homestayModel');
 const APIFeatures = require('../utils/apiFeatures');
 const querystring = require('querystring');
 const base = require('./baseController');
@@ -8,8 +9,75 @@ const moment = require('moment');
 
 exports.getAllCategory = base.getAll(Category);
 exports.getCategory = base.getOne(Category);
-exports.updateCategory = base.updateOne(Category);
+
 exports.deleteCategory = base.deleteOne(Category);
+
+exports.updateCategory = async (req, res, next) => {
+  try {
+    let body = req.body;
+    // upload file
+    // image upload
+    const avatarFile = req?.files?.avatar?.[0];
+    const galleryFiles = req?.files?.images;
+    let avatar = undefined;
+    let gallery = undefined;
+    if (avatarFile) {
+      avatar = avatarFile?.path;
+      body.avatar = avatar;
+    }
+    // gallery upload
+    if (galleryFiles) {
+      gallery = galleryFiles.map((file) => file.path);
+      body.images = gallery;
+    }
+    // end upload image
+
+    const doc = await Category.findByIdAndUpdate(req.params.id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!doc) {
+      return next(
+        new AppError(404, 'fail', 'No document found with that id'),
+        req,
+        res,
+        next
+      );
+    }
+
+    const homestay_id = body?.homestay_id;
+    if (homestay_id) {
+      const categoryMinPrice = await Category.find({
+        homestay_id: homestay_id,
+      })
+        .limit(1)
+        .sort('-price');
+      const categoryMaxPrice = await Category.find({
+        homestay_id: homestay_id,
+      })
+        .limit(1)
+        .sort('-price');
+      if (categoryMinPrice?.length > 0 && categoryMaxPrice?.length > 0) {
+        await Homestay.findByIdAndUpdate(
+          homestay_id,
+          { minPrice: categoryMinPrice, maxPrice: categoryMaxPrice },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+      }
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: doc,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.getAllCategoryInHomestay = async (req, res, next) => {
   try {
@@ -72,7 +140,7 @@ exports.handleActiveCategory = async (req, res, next) => {
       { $set: { status: active } },
       { multi: true }
     );
-    
+
     if (!doc) {
       return next(
         new AppError(404, 'fail', 'No document found with that id'),

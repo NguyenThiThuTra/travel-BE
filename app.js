@@ -18,7 +18,6 @@ const categoryRoutes = require('./routes/categoryRouter');
 const reviewRoutes = require('./routes/reviewRouter');
 const commentRoutes = require('./routes/commentRouter');
 const likeReviewRoutes = require('./routes/likeReviewRouter');
-const testRoutes = require('./test/test.router');
 
 const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -72,7 +71,6 @@ app.get('/', function (req, res) {
   res.sendFile(homePage);
 });
 // Routes
-app.use('/api/v1/test', testRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/homestays', homestayRoutes);
 app.use('/api/v1/rooms', roomRoutes);

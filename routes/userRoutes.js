@@ -6,14 +6,6 @@ const fileUploader = require('../config/cloudinary.config');
 
 router.post('/login', authController.login);
 router.post('/signup', fileUploader.single('avatar'), authController.signup);
-router.post('/test', (req, res, next) => {
-  try {
-    let test = req.body;
-    res.status(200).json(test);
-  } catch (err) {
-    next(err);
-  }
-});
 
 // -- Protect all routes after this middleware
 // router.use(authController.protect);

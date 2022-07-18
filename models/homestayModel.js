@@ -73,6 +73,14 @@ const homestaySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    minPrice: {
+      type: Number,
+      default: 0,
+    },
+    maxPrice: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

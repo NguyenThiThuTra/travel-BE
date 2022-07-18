@@ -1,6 +1,7 @@
 const Homestay = require('../models/homestayModel');
 const base = require('./baseController');
 const Order = require('../models/orderModel');
+const Category = require('../models/categoryModel');
 const Room = require('../models/roomModel');
 const querystring = require('querystring');
 const APIFeatures = require('../utils/apiFeatures');

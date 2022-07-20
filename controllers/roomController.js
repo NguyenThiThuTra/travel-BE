@@ -85,7 +85,10 @@ exports.createRoom = async (req, res, next) => {
     if (categoryMinPrice?.length > 0 && categoryMaxPrice?.length > 0) {
       await Homestay.findByIdAndUpdate(
         homestay_id,
-        { minPrice: categoryMinPrice, maxPrice: categoryMaxPrice },
+        {
+          minPrice: categoryMinPrice?.[0]?.price,
+          maxPrice: categoryMaxPrice?.[0]?.price,
+        },
         {
           new: true,
           runValidators: true,

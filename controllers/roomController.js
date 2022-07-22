@@ -70,31 +70,6 @@ exports.createRoom = async (req, res, next) => {
     // end upload image
 
     const category = new Category(categoryData);
-    await category.save();
-
-    const categoryMinPrice = await Category.find({
-      homestay_id: homestay_id,
-    })
-      .limit(1)
-      .sort('-price');
-    const categoryMaxPrice = await Category.find({
-      homestay_id: homestay_id,
-    })
-      .limit(1)
-      .sort('-price');
-    if (categoryMinPrice?.length > 0 && categoryMaxPrice?.length > 0) {
-      await Homestay.findByIdAndUpdate(
-        homestay_id,
-        {
-          minPrice: categoryMinPrice?.[0]?.price,
-          maxPrice: categoryMaxPrice?.[0]?.price,
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-    }
 
     const roomData = {
       homestay_id,
@@ -110,6 +85,8 @@ exports.createRoom = async (req, res, next) => {
     // tạo nhiều room cùng một category
 
     const doc = await Room.insertMany(rooms);
+    await category.save();
+
     res.status(201).json({
       code: 201,
       status: 'success',

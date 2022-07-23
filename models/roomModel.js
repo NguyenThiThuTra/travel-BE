@@ -18,19 +18,10 @@ const roomSchema = new mongoose.Schema(
       required: true,
     },
     price: Number,
-    capacity: Number,
     status: {
       type: Boolean,
       default: true,
     },
-    // assets: {
-    //   macLab: { type: Boolean, default: false },
-    //   pcLab: { type: Boolean, default: false },
-    //   projector: { type: Boolean, default: false },
-    //   tv: { type: Boolean, default: false },
-    //   opWalls: { type: Boolean, default: false },
-    //   whiteBoard: { type: Boolean, default: false },
-    // },
   },
   { timestamps: true }
 );

@@ -41,6 +41,14 @@ const categorySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    comments_count: {
+      type: Number,
+      default: 0,
+    },
+    rate: {
+      type: Number,
+      default: 0,
+    },
     active: {
       type: Boolean,
       default: true,

@@ -12,8 +12,17 @@ exports.getAllOrders = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+
+    let query_filters = req.query.filters
+      ? querystring.parse(req.query.filters)
+      : {};
+    let { status, ...rest } = query_filters;
+    if (Array.isArray(status)) {
+      const convertStatus = status?.map((s) => ({ status: s }));
+      rest = { ...rest, $or: convertStatus };
+    }
     const features = new APIFeatures(
-      Order.find(req.query.filters ? querystring.parse(req.query.filters) : {})
+      Order.find({ ...rest })
         .populate('room_ids')
         .populate('order.category_id')
         .populate('homestay_id'),

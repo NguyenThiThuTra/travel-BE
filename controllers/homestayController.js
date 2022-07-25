@@ -50,7 +50,7 @@ exports.getAllHomestay = async (req, res, next) => {
 exports.getAllHomestaySearch = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 9;
 
     let { active, ...query_filters } =
       querystring.parse(req.query?.filters) || {};
@@ -110,6 +110,29 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     // query homestay
     let queryHomestay = {};
 
+    const queryCategory = [
+      {
+        $match: { active: true },
+      },
+      {
+        $group: {
+          _id: { homestay_id: '$homestay_id' },
+          minPrice: { $min: '$price' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'homestays',
+          localField: '_id.homestay_id',
+          foreignField: '_id',
+          as: 'homestay',
+        },
+      },
+      {
+        $unwind: { path: '$homestay' },
+      },
+    ];
+
     const searchText = req.query?.search;
     // console.log({ searchText });
     if (searchText) {
@@ -146,36 +169,14 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     };
     const isCheckExistQueryHomestay = Object.values(queryHomestay).length > 0;
 
-    const queryCategory = [
-      {
-        $match: { active: true },
-      },
-      {
-        $group: {
-          _id: { homestay_id: '$homestay_id' },
-          minPrice: { $min: '$price' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'homestays',
-          localField: '_id.homestay_id',
-          foreignField: '_id',
-          as: 'homestay',
-        },
-      },
-      {
-        $unwind: { path: '$homestay' },
-      },
-    ];
     if (isCheckExistQueryHomestay) {
       queryCategory.push(matchQueryHomestay);
     }
 
     // handle sort
     const sort = req.query.sort;
+    let querySort = {};
     if (sort) {
-      let querySort = {};
       if (sort === 'rate') {
         querySort = {
           $sort: {
@@ -204,9 +205,13 @@ exports.getAllHomestaySearch = async (req, res, next) => {
           },
         };
       }
-
-      queryCategory.push(querySort);
     }
+    querySort = {
+      $sort: { ...querySort.$sort, 'homestay._id': 1 },
+    };
+
+    queryCategory.push(querySort);
+
     // end handle sort
 
     const features = new APIFeatures(
@@ -233,8 +238,13 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     //   .limitFields();
     // const availableRooms1 = await features1.query;
     // end query homestay
-
-    const total = await Category.countDocuments(filtersHomestay);
+    const passing_scores = await Category.aggregate([
+      ...queryCategory,
+      {
+        $count: 'passing_scores',
+      },
+    ]);
+    const total = passing_scores?.[0].passing_scores;
     await res.status(200).json({
       status: 'success',
       results: homestays.length,
@@ -248,6 +258,9 @@ exports.getAllHomestaySearch = async (req, res, next) => {
         to: (page - 1) * limit + 1 + limit,
         offset: (page - 1) * limit,
       },
+      availableRooms,
+      queryCategory,
+      passing_scores,
     });
   } catch (error) {
     next(error);

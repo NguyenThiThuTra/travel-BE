@@ -6,7 +6,6 @@ const base = require('./baseController');
 const moment = require('moment');
 const AppError = require('../utils/appError');
 const querystring = require('querystring');
-const mongoose = require('mongoose');
 
 exports.getAllOrders = async (req, res, next) => {
   try {
@@ -17,7 +16,10 @@ exports.getAllOrders = async (req, res, next) => {
       ? querystring.parse(req.query.filters)
       : {};
     let { status, ...rest } = query_filters;
-    if (Array.isArray(status)) {
+    if (status && !Array.isArray(status)) {
+      rest = { ...rest, status };
+    }
+    if (status && Array.isArray(status) && status?.length > 0) {
       const convertStatus = status?.map((s) => ({ status: s }));
       rest = { ...rest, $or: convertStatus };
     }
@@ -32,7 +34,6 @@ exports.getAllOrders = async (req, res, next) => {
       .paginate()
       .limitFields();
     const doc = await features.query;
-    // console.log({ doc });
 
     await Order.countDocuments(
       req.query.filters ? querystring.parse(req.query.filters) : {}

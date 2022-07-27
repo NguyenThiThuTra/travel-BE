@@ -89,59 +89,64 @@ exports.getAllReview = async (req, res, next) => {
     }
 
     // aggregate
-    // const reviews = await Review.aggregate([
-    //   {
-    //     $match: {
-    //       province: 1,
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'orders',
-    //       localField: 'user_id',
-    //       foreignField: 'user_id',
-    //       pipeline: [
-    //         {
-    //           $group: {
-    //             _id: '$homestay_id',
-    //           },
-    //         },
-    //         {
-    //           $lookup: {
-    //             from: 'homestays',
-    //             localField: '_id',
-    //             foreignField: '_id',
-    //             as: 'homestays',
-    //           },
-    //         },
-    //         {
-    //           $unwind: {
-    //             path: '$homestays',
-    //           },
-    //         },
-    //       ],
-    //       as: 'orders',
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'users',
-    //       localField: 'user_id',
-    //       foreignField: '_id',
-    //       as: 'user',
-    //     },
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$user',
-    //     },
-    //   },
-    //   {
-    //     $sort: {
-    //       createdAt: -1,
-    //     },
-    //   },
-    // ]);
+    const reviews = await Review.aggregate([
+      {
+        $match: {
+          province: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'user_id',
+          foreignField: 'user_id',
+          pipeline: [
+            {
+              $group: {
+                _id: '$homestay_id',
+              },
+            },
+            {
+              $lookup: {
+                from: 'homestays',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'homestays',
+              },
+            },
+            {
+              $unwind: {
+                path: '$homestays',
+              },
+            },
+            {
+              $match: {
+                'homestays.addresses.province.code': 1,
+              },
+            },
+          ],
+          as: 'orders',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: {
+          path: '$user',
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
 
     await Review.countDocuments(
       req.query.filters ? querystring.parse(req.query.filters) : {}
@@ -159,7 +164,7 @@ exports.getAllReview = async (req, res, next) => {
           to: (page - 1) * limit + 1 + limit,
           offset: (page - 1) * limit,
         },
-        // reviews,
+        reviews,
       });
     });
   } catch (error) {

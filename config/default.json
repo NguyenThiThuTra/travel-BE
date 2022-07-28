@@ -1,6 +1,6 @@
 {
-  "vnp_TmnCode": "J3ZCRADV",
-  "vnp_HashSecret": "ZMMHAQQYZSZWMRHTFHGNWHZHOYIKLJJZ",
+  "vnp_TmnCode": "Y0ZQ6C33",
+  "vnp_HashSecret": "WPGPRYLAUYYZNOADEPVQLVMUPFSGQGEO",
   "vnp_Url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
   "vnp_ReturnUrl": "http://localhost:3000/payment/vnpay_return"
 }

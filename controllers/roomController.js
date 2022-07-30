@@ -173,9 +173,9 @@ exports.getAllRooms = async (req, res, next) => {
     if (from_date && to_date) {
       const orders = await Order.find({
         $or: [
-          { start: { $gte: from_date, $lte: to_date } },
+          { start: { $gte: from_date, $lt: to_date } },
           {
-            end: { $gte: from_date, $lte: to_date },
+            end: { $gt: from_date, $lte: to_date },
           },
           {
             $and: [{ start: { $lte: from_date } }, { end: { $gte: to_date } }],

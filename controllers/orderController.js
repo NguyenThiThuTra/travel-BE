@@ -91,9 +91,9 @@ exports.createOrder = async (req, res, next) => {
     // get danh sách orders thoả mãn điều kiện thời gian
     const orders = await Order.find({
       $or: [
-        { start: { $gte: from_date, $lte: to_date } },
+        { start: { $gte: from_date, $lt: to_date } },
         {
-          end: { $gte: from_date, $lte: to_date },
+          end: { $gt: from_date, $lte: to_date },
         },
         {
           $and: [{ start: { $lte: from_date } }, { end: { $gte: to_date } }],

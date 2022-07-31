@@ -12,87 +12,90 @@ exports.getAllReview = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const features = new APIFeatures(
-      Review.find(
-        req.query.filters ? querystring.parse(req.query.filters) : {}
-      ).populate('user_id'),
-      req.query
-    )
+    const query_filters = req.query.filters
+      ? querystring.parse(req.query.filters)
+      : {};
+    // const features = new APIFeatures(
+    //   Review.find(query_filters).populate('user_id'),
+    //   req.query
+    // )
 
-      .sort()
-      .paginate()
-      .limitFields()
-      .search();
-    const doc = await features.query;
-    let dataReview = doc;
-    // asyncOrderByUserIdReview
-    const asyncOrderByUserIdReview = async (review) => {
-      const homestayIds = await Order.find({
-        user_id: review.user_id,
-        status: 'approved',
-      }).distinct('homestay_id');
-      const homestays = await Homestay.find({ _id: { $in: homestayIds } });
-      return { [review?._id]: homestays };
-    };
-    const orderByUserIdReview = await Promise.all(
-      doc.map((value) => asyncOrderByUserIdReview(value))
-    );
-    dataReview = doc.map((item) => {
-      const homestays = orderByUserIdReview.find((l) => {
-        if (Object.keys(l)?.[0] == item?._id.toString()) {
-          return l;
-        }
-        return false;
-      });
+    //   .sort()
+    //   .paginate()
+    //   .limitFields()
+    //   .search();
+    // const doc = await features.query;
+    // let dataReview = doc;
+    // // asyncOrderByUserIdReview
+    // const asyncOrderByUserIdReview = async (review) => {
+    //   const homestayIds = await Order.find({
+    //     user_id: review.user_id,
+    //     status: 'approved',
+    //   }).distinct('homestay_id');
+    //   const homestays = await Homestay.find({ _id: { $in: homestayIds } });
+    //   return { [review?._id]: homestays };
+    // };
+    // const orderByUserIdReview = await Promise.all(
+    //   doc.map((value) => asyncOrderByUserIdReview(value))
+    // );
+    // dataReview = doc.map((item) => {
+    //   const homestays = orderByUserIdReview.find((l) => {
+    //     if (Object.keys(l)?.[0] == item?._id.toString()) {
+    //       return l;
+    //     }
+    //     return false;
+    //   });
 
-      return {
-        ...item?._doc,
-        homestays: Object.values(homestays)?.[0],
-      };
-    });
-    // asyncReview
-    const currentUser = req?.user;
-    let dataLike = [];
+    //   return {
+    //     ...item?._doc,
+    //     homestays: Object.values(homestays)?.[0],
+    //   };
+    // });
+    // // asyncReview
+    // const currentUser = req?.user;
+    // let dataLike = [];
 
-    if (currentUser) {
-      const asyncReview = async (review) => {
-        let isCurrentUserLike = false;
-        try {
-          const data = await LikeReview.findOne({
-            user_id: currentUser._id,
-            review_id: review?._id,
-            active: true,
-          });
-          if (data) {
-            isCurrentUserLike = true;
-          }
-        } catch (error) {
-          isCurrentUserLike = false;
-        }
-        dataLike.push({ [review?._id]: isCurrentUserLike });
-      };
-      await Promise.all(dataReview.map((value) => asyncReview(value)));
+    // if (currentUser) {
+    //   const asyncReview = async (review) => {
+    //     let isCurrentUserLike = false;
+    //     try {
+    //       const data = await LikeReview.findOne({
+    //         user_id: currentUser._id,
+    //         review_id: review?._id,
+    //         active: true,
+    //       });
+    //       if (data) {
+    //         isCurrentUserLike = true;
+    //       }
+    //     } catch (error) {
+    //       isCurrentUserLike = false;
+    //     }
+    //     dataLike.push({ [review?._id]: isCurrentUserLike });
+    //   };
+    //   await Promise.all(dataReview.map((value) => asyncReview(value)));
 
-      dataReview = dataReview.map((item) => {
-        const isCheckLike = dataLike.find((l) => {
-          if (Object.keys(l)?.[0] == item?._id.toString()) {
-            return l;
-          }
-          return false;
-        });
+    //   dataReview = dataReview.map((item) => {
+    //     const isCheckLike = dataLike.find((l) => {
+    //       if (Object.keys(l)?.[0] == item?._id.toString()) {
+    //         return l;
+    //       }
+    //       return false;
+    //     });
 
-        return {
-          ...item,
-          isCurrentUserLike: Object.values(isCheckLike)?.[0],
-        };
-      });
-    }
+    //     return {
+    //       ...item,
+    //       isCurrentUserLike: Object.values(isCheckLike)?.[0],
+    //     };
+    //   });
+    // }
 
     // aggregate
-    const reviews = await Review.aggregate([
+    const provinceCode = query_filters?.province;
+
+    const queryReview = [
       {
         $match: {
-          province: 1,
+          province: Number(provinceCode),
         },
       },
       {
@@ -121,7 +124,7 @@ exports.getAllReview = async (req, res, next) => {
             },
             {
               $match: {
-                'homestays.addresses.province.code': 1,
+                'homestays.addresses.province.code': Number(provinceCode),
               },
             },
           ],
@@ -146,26 +149,45 @@ exports.getAllReview = async (req, res, next) => {
           createdAt: -1,
         },
       },
-    ]);
+    ];
 
-    await Review.countDocuments(
-      req.query.filters ? querystring.parse(req.query.filters) : {}
-    ).then((total) => {
-      res.status(200).json({
-        status: 'success',
-        results: doc.length,
-        data: dataReview,
-        paging: {
-          current_page: page,
-          total: total,
-          per_page: limit,
-          last_page: Math.ceil(total / limit),
-          from: (page - 1) * limit + 1,
-          to: (page - 1) * limit + 1 + limit,
-          offset: (page - 1) * limit,
-        },
-        reviews,
-      });
+    const featuresReview = new APIFeatures(
+      Review.aggregate(queryReview),
+      req.query
+    )
+      .paginate()
+      .limitFields();
+    const reviews = await featuresReview.query;
+
+    const formatDataReviews = reviews.map((review) => {
+      const homestays = review.orders.map((order) => order.homestays);
+      const formatReview = { ...review, orders: { homestays } };
+      return formatReview;
+    });
+
+    const passing_scores = await Review.aggregate([
+      ...queryReview,
+      {
+        $count: 'passing_scores',
+      },
+    ]);
+    const total = passing_scores?.[0].passing_scores;
+
+    await res.status(200).json({
+      status: 'success',
+      results: formatDataReviews.length,
+      // data: dataReview,
+      data: formatDataReviews,
+      paging: {
+        current_page: page,
+        total: total,
+        per_page: limit,
+        last_page: Math.ceil(total / limit),
+        from: (page - 1) * limit + 1,
+        to: (page - 1) * limit + 1 + limit,
+        offset: (page - 1) * limit,
+      },
+      reviews,
     });
   } catch (error) {
     next(error);

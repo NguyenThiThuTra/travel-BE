@@ -71,7 +71,7 @@ exports.getAllCategoryInHomestay = async (req, res, next) => {
         },
       ],
       // filter by status order
-      status: { $nin: ['rejected', 'canceled'] },
+      status: { $nin: ['rejected', 'canceled', 'holding'] },
     }).select('room_ids');
 
     const order = body.order;

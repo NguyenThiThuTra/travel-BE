@@ -182,7 +182,7 @@ exports.getAllRooms = async (req, res, next) => {
           },
         ],
         // filter by status order
-        status: { $nin: ['rejected', 'canceled'] },
+        status: { $nin: ['rejected', 'canceled', 'holding'] },
       }).select('room_ids');
       const roomIds = orders.map((b) => b.room_ids).flat();
       merge_query = {

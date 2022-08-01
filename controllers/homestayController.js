@@ -71,7 +71,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
           },
         ],
         // filter by status order
-        status: { $nin: ['rejected', 'canceled'] },
+        status: { $nin: ['rejected', 'canceled', 'holding'] },
       }).select(['room_ids', 'homestay_id']);
       // const homestayIds = orders.map((b) => b.homestay_id);
       const roomIds = orders.map((b) => b.room_ids).flat();

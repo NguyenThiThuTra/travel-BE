@@ -100,7 +100,7 @@ exports.createOrder = async (req, res, next) => {
         },
       ],
       // filter by status order
-      status: { $nin: ['rejected', 'canceled'] },
+      status: { $nin: ['rejected', 'canceled', 'holding'] },
     }).select('room_ids');
     // map thành mảng roomIds
     const roomIds = orders.map((b) => b.room_ids).flat();
@@ -136,6 +136,7 @@ exports.createOrder = async (req, res, next) => {
     // tạo đơn hàng
     const doc = new Order({ ...body, room_ids, start, end });
     await doc.save();
+    console.log({ doc });
 
     res.status(201).json({
       code: 201,

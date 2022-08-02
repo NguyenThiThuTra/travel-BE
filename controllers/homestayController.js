@@ -57,6 +57,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     let merge_query = Object.assign({}, query_filters);
 
     const { from_date, to_date, province_code } = req.query;
+
     let distinctHomestayId = null;
     if (from_date && to_date) {
       // console.log({ from_date, to_date });
@@ -244,7 +245,8 @@ exports.getAllHomestaySearch = async (req, res, next) => {
         $count: 'passing_scores',
       },
     ]);
-    const total = passing_scores?.[0].passing_scores;
+    const total = passing_scores?.[0]?.passing_scores;
+    
     await res.status(200).json({
       status: 'success',
       results: homestays.length,

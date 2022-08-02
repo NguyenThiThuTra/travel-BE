@@ -23,6 +23,10 @@ exports.getAllOrders = async (req, res, next) => {
       const convertStatus = status?.map((s) => ({ status: s }));
       rest = { ...rest, $or: convertStatus };
     }
+    rest = {
+      $and: [{ status: { $nin: ['holding'] } }, { ...rest }],
+    };
+
     const features = new APIFeatures(
       Order.find({ ...rest })
         .populate('room_ids')

@@ -10,7 +10,6 @@ router.patch('/:id', likeReviewController.updateLikeReview);
 router
   .route('/:id')
   .get(likeReviewController.getLikeReview)
-  // .patch(roomController.updateRoom)
   .delete(likeReviewController.deleteLikeReview);
 
 module.exports = router;

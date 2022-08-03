@@ -75,7 +75,6 @@ exports.getAllCategoryInHomestay = async (req, res, next) => {
     }).select('room_ids');
 
     const order = body.order;
-    // [ {category_id: 1, select_room: 2 }, {category_id: 2, select_room: 1 } ]
 
     const roomIds = orders.map((b) => b.room_ids).flat();
     let merge_query = Object.assign({}, query_filters);

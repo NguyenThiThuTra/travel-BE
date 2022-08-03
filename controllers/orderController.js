@@ -109,7 +109,6 @@ exports.createOrder = async (req, res, next) => {
     // map thành mảng roomIds
     const roomIds = orders.map((b) => b.room_ids).flat();
     const order = body.order;
-    // [ {category_id: 1, select_room: 2 }, {category_id: 2, select_room: 1 } ]
     // validate
     const room_ids = [];
     for (const item of order) {

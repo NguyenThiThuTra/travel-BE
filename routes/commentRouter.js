@@ -16,6 +16,5 @@ router.get('/homestay/:homestay_id', commentController.getAllCommentInHomestay);
 router.get('/', commentController.getAll);
 
 router.patch('/:id', commentController.updateComment);
-// router.delete('/:id',commentController.deleteComment);
 
 module.exports = router;

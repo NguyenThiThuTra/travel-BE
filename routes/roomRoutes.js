@@ -24,7 +24,6 @@ router.patch(
 router
   .route('/:id')
   .get(roomController.getRoom)
-  // .patch(roomController.updateRoom)
   .delete(roomController.deleteRoom);
 
 module.exports = router;

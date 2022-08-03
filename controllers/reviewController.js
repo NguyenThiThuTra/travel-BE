@@ -15,79 +15,6 @@ exports.getAllReview = async (req, res, next) => {
     const query_filters = req.query.filters
       ? querystring.parse(req.query.filters)
       : {};
-    // const features = new APIFeatures(
-    //   Review.find(query_filters).populate('user_id'),
-    //   req.query
-    // )
-
-    //   .sort()
-    //   .paginate()
-    //   .limitFields()
-    //   .search();
-    // const doc = await features.query;
-    // let dataReview = doc;
-    // // asyncOrderByUserIdReview
-    // const asyncOrderByUserIdReview = async (review) => {
-    //   const homestayIds = await Order.find({
-    //     user_id: review.user_id,
-    //     status: 'approved',
-    //   }).distinct('homestay_id');
-    //   const homestays = await Homestay.find({ _id: { $in: homestayIds } });
-    //   return { [review?._id]: homestays };
-    // };
-    // const orderByUserIdReview = await Promise.all(
-    //   doc.map((value) => asyncOrderByUserIdReview(value))
-    // );
-    // dataReview = doc.map((item) => {
-    //   const homestays = orderByUserIdReview.find((l) => {
-    //     if (Object.keys(l)?.[0] == item?._id.toString()) {
-    //       return l;
-    //     }
-    //     return false;
-    //   });
-
-    //   return {
-    //     ...item?._doc,
-    //     homestays: Object.values(homestays)?.[0],
-    //   };
-    // });
-    // // asyncReview
-    // const currentUser = req?.user;
-    // let dataLike = [];
-
-    // if (currentUser) {
-    //   const asyncReview = async (review) => {
-    //     let isCurrentUserLike = false;
-    //     try {
-    //       const data = await LikeReview.findOne({
-    //         user_id: currentUser._id,
-    //         review_id: review?._id,
-    //         active: true,
-    //       });
-    //       if (data) {
-    //         isCurrentUserLike = true;
-    //       }
-    //     } catch (error) {
-    //       isCurrentUserLike = false;
-    //     }
-    //     dataLike.push({ [review?._id]: isCurrentUserLike });
-    //   };
-    //   await Promise.all(dataReview.map((value) => asyncReview(value)));
-
-    //   dataReview = dataReview.map((item) => {
-    //     const isCheckLike = dataLike.find((l) => {
-    //       if (Object.keys(l)?.[0] == item?._id.toString()) {
-    //         return l;
-    //       }
-    //       return false;
-    //     });
-
-    //     return {
-    //       ...item,
-    //       isCurrentUserLike: Object.values(isCheckLike)?.[0],
-    //     };
-    //   });
-    // }
 
     // aggregate
     const provinceCode = query_filters?.province;
@@ -176,7 +103,6 @@ exports.getAllReview = async (req, res, next) => {
     await res.status(200).json({
       status: 'success',
       results: formatDataReviews.length,
-      // data: dataReview,
       data: formatDataReviews,
       paging: {
         current_page: page,
@@ -283,12 +209,6 @@ exports.likeReview = async (req, res, next) => {
         next
       );
     }
-    // update increment likeReview
-    // const a = await Review.findByIdAndUpdate(
-    //   review_id,
-    //   { $inc: { likeReview: 1 } },
-    //   { new: true }
-    // );
 
     // find like review by user_id and review_id
     const likeReview = await LikeReview.findOneAndUpdate(

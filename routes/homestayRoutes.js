@@ -4,7 +4,6 @@ const homestayController = require('../controllers/homestayController');
 const fileUploader = require('../config/cloudinary.config');
 const authController = require('./../controllers/authController');
 
-//end upload
 router.post(
   '/',
   fileUploader.fields([
@@ -33,7 +32,6 @@ router.patch(
 router
   .route('/:id')
   .get(homestayController.getHomestay)
-  // .patch(homestayController.updateHomestay)
   .delete(homestayController.deleteHomestay);
 
 module.exports = router;

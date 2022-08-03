@@ -31,7 +31,7 @@ exports.createVNPayment = async (req, res, next) => {
   var date = new Date();
 
   var createDate = dateFormat(date, 'yyyymmddHHmmss');
-  // var orderId = dateFormat(date, 'HHmmss');
+  
   var orderId = req.body.orderId;
   var amount = req.body.amount;
   var bankCode = req.body.bankCode;
@@ -70,7 +70,7 @@ exports.createVNPayment = async (req, res, next) => {
   var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
   vnp_Params['vnp_SecureHash'] = signed;
   vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-  // res.redirect(vnpUrl);
+  
   res.status(200).json({
     status: 'success',
     vnpUrl,
@@ -114,7 +114,7 @@ exports.returnVNPayment = async (req, res, next) => {
 
 exports.ipnVNPayment = async (req, res, next) => {
   var vnp_Params = req.query;
-  // console.log({ req: req.query });
+  
   var secureHash = vnp_Params['vnp_SecureHash'];
 
   delete vnp_Params['vnp_SecureHash'];

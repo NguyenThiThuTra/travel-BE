@@ -60,7 +60,6 @@ exports.getAllHomestaySearch = async (req, res, next) => {
 
     let distinctHomestayId = null;
     if (from_date && to_date) {
-      // console.log({ from_date, to_date });
       const orders = await Order.find({
         $or: [
           { start: { $gte: from_date, $lt: to_date } },
@@ -74,7 +73,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
         // filter by status order
         status: { $nin: ['rejected', 'canceled', 'holding'] },
       }).select(['room_ids', 'homestay_id']);
-      // const homestayIds = orders.map((b) => b.homestay_id);
+
       const roomIds = orders.map((b) => b.room_ids).flat();
       merge_query = {
         ...merge_query,
@@ -135,7 +134,7 @@ exports.getAllHomestaySearch = async (req, res, next) => {
     ];
 
     const searchText = req.query?.search;
-    // console.log({ searchText });
+
     if (searchText) {
       queryHomestay = {
         ...queryHomestay,
@@ -232,13 +231,6 @@ exports.getAllHomestaySearch = async (req, res, next) => {
       return homestay;
     });
 
-    // const features1 = new APIFeatures(Homestay.find(filtersHomestay), req.query)
-    //   .search()
-    //   .sort()
-    //   .paginate()
-    //   .limitFields();
-    // const availableRooms1 = await features1.query;
-    // end query homestay
     const passing_scores = await Category.aggregate([
       ...queryCategory,
       {

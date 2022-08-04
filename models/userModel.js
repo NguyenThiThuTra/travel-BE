@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const isVietnamesePhoneNumberValid = require('../utils/isVietnamesePhoneNumberValid')
 
 const userSchema = new mongoose.Schema(
   {
@@ -40,6 +41,12 @@ const userSchema = new mongoose.Schema(
     phone_number: {
       type: String,
       minLength: 9,
+      validate: {
+        validator: function (el) {
+          return isVietnamesePhoneNumberValid(el);
+        },
+        message: 'Số điện thoại không hợp lệ',
+      },
     },
     avatar: {
       type: String,

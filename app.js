@@ -43,8 +43,8 @@ app.use(helmet());
 
 // Limit request from the same API
 const limiter = rateLimit({
-  max: 15000,
-  windowMs: 60 * 60 * 1000,
+  max: 15000, // Limit each IP to 15000 requests per `window` (here, per 1 minutes)
+  windowMs:  60 * 60 * 1000,  // 60 minutes
   message: 'Too Many Request from this IP, please try again in an hour',
 });
 app.use('/api', limiter);
@@ -62,7 +62,7 @@ app.use(mongoSanitize());
 // Data sanitization against XSS(clean user input from malicious HTML code)
 app.use(xss());
 
-// Prevent parameter pollution
+// Prevent parameter pollution HTTP
 app.use(hpp());
 
 // render static files

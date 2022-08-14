@@ -39,9 +39,7 @@ exports.getAllOrders = async (req, res, next) => {
       .limitFields();
     const doc = await features.query;
 
-    await Order.countDocuments(
-      req.query.filters ? querystring.parse(req.query.filters) : {}
-    ).then((total) => {
+    await Order.countDocuments({ ...rest }).then((total) => {
       res.status(200).json({
         status: 'success',
         results: doc.length,

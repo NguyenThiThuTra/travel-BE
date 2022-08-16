@@ -33,6 +33,11 @@ const categorySchema = new mongoose.Schema(
       enum: ['single', 'double', 'family', 'big family'],
       default: 'double',
     },
+    amenities: {
+      type: Array,
+      required: true,
+      default: [],
+    },
     quantity: {
       type: Number,
       required: true,

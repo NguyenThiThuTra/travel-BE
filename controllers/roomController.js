@@ -34,8 +34,16 @@ exports.getRoom = async (req, res, next) => {
 exports.createRoom = async (req, res, next) => {
   try {
     const body = req.body;
-    const { homestay_id, name, description, type, quantity, price, user_id } =
-      body;
+    const {
+      homestay_id,
+      name,
+      description,
+      type,
+      quantity,
+      price,
+      user_id,
+      amenities,
+    } = body;
     const rate = body?.rate || 0;
     const view = body?.view || 0;
     const comments_count = body?.comments_count || 0;
@@ -50,8 +58,8 @@ exports.createRoom = async (req, res, next) => {
       view,
       comments_count,
       user_id,
+      amenities,
     };
-
     // upload file
     // image upload
     const avatarFile = req?.files?.avatar?.[0];
